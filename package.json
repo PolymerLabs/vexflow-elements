@@ -1,0 +1,23 @@
+{
+  "name": "vexflow-elements",
+  "version": "1.0.0",
+  "description": "Web components for the VexFlow music notation rendering library",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "es-dev-server --node-resolve --watch --open /demo/index.html",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PolymerLabs/vexflow-elements.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/PolymerLabs/vexflow-elements/issues"
+  },
+  "homepage": "https://github.com/PolymerLabs/vexflow-elements#readme",
+  "devDependencies": {
+    "es-dev-server": "^1.57.0",
+    "vexflow": "^3.0.9"
+  }
+}
