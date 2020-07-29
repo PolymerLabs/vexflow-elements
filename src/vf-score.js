@@ -1,18 +1,16 @@
-
-// ## Description
-// 
-// This file implements `vf-score`, the web component that acts as the 
-// container for the entire component. `vf-score`'s shadow root holds
-// the HTML element that the renderer renders too.
-// 
-// All actual drawing is called from `vf-score`. 
-
 import Vex from 'vexflow';
 
 import ElementAddedEvent from './events/elementAddedEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
 import SystemReadyEvent from './events/systemReadyEvent';
 
+/**
+ * Implements the `vf-score` web component, which acts as the container for
+ * the entire component. `vf-score`'s shadow root holds the HTML element that
+ * the renderer renders too. 
+ * 
+ * All actual drawing is called from `vf-score`. 
+ */
 export class VFScore extends HTMLElement {
   /**
    * The Factory instance to be used by the overall component that this vf-score
@@ -100,16 +98,16 @@ export class VFScore extends HTMLElement {
     // finished creating and adding its staves. vf-score listens to this event 
     // so that it can add that it can detect when the vf-system is ready to 
     // be drawn.
-    this.addEventListener(SystemReadyEvent.eventName, this.systemCreated);
+    this.addEventListener(SystemReadyEvent.eventName, this._systemCreated);
 
     // The 'vf-element-added' event is dispatched by all the child elements 
     // when they are added to the DOM. vf-score listens to these events so that 
     // it can set the child elements' Factory instances, since these are shared 
     // by a vf-score and all its children to maintain the same render queue. 
-    this.addEventListener(ElementAddedEvent.eventName, this.setFactory);
+    this.addEventListener(ElementAddedEvent.eventName, this._setFactory);
 
     // The 'vf-stave-added' event is dispatched only by the vf-stave child. 
-    this.addEventListener(StaveAddedEvent.eventName, this.setRegistry);
+    this.addEventListener(StaveAddedEvent.eventName, this._setRegistry);
   }
 
   connectedCallback() {
@@ -127,12 +125,12 @@ export class VFScore extends HTMLElement {
 
     // vf-score listens to the slotchange event so that it can detect its system 
     // and set it up accordingly
-    this.shadowRoot.querySelector('slot').addEventListener('slotchange', this.registerSystem);
+    this.shadowRoot.querySelector('slot').addEventListener('slotchange', this._registerSystem);
   }
 
   disconnectedCallback() {
     // TODO (ywsang): Clean up any resources that may need to be cleaned up. 
-    this.shadowRoot.querySelector('slot').removeEventListener('slotchange', this.registerSystem);
+    this.shadowRoot.querySelector('slot').removeEventListener('slotchange', this._registerSystem);
   }
 
   static get observedAttributes() { return ['x', 'y', 'width', 'height', 'renderer'] }
@@ -154,9 +152,6 @@ export class VFScore extends HTMLElement {
         // TODO (ywsang): Implement code to resize the renderer. Need to make 
         // sure the renderer is already created!
         break;
-      case 'renderer':
-        this._rendererType = newValue;
-        break;
     }
   }
 
@@ -177,12 +172,13 @@ export class VFScore extends HTMLElement {
       this._renderer = new Vex.Flow.Renderer(element, Vex.Flow.Renderer.Backends.SVG);
     }
 
-    this._renderer.resize(this._width, this._height);
+    this._resize();
     this._context = this._renderer.getContext();
     this.registry = new Vex.Flow.Registry();
   }
 
   /**
+   * Sets up the factory for this component. 
    * @private
    */
   _setupFactory() {
@@ -192,38 +188,49 @@ export class VFScore extends HTMLElement {
     // such, the element would not be found due to DOM encapsulation. However, 
     // in order to use the simplified EasyScore API constructors, a Factory 
     // instance is still needed. 
-    // TODO (ywsang): Allow Factory to take in an element reference? 
     this.vf = new Vex.Flow.Factory({ renderer: { elementId: null } });
     this.vf.setContext(this._context);
 
     this._isSetup = true;
   }
 
-  getNoteFromId(id) {
-    return this.registry.getElementById(id);
+  /**
+   * Resizes the renderer to the score's width and height properties. 
+   * @private
+   */
+  _resize() {
+    this._renderer.resize(this._width, this._height);
   }
 
   /** 
    * "Registers" the vf-system child. 
    * This PR only supports/assumes one vf-system per vf-score. 
+   * @private
    */
-  registerSystem = () => {
+  _registerSystem = () => {
     const system = this.shadowRoot.querySelector('slot').assignedElements()[0];
     // TODO (ywsang): Figure out how to account for any added connectors that 
     // get drawn in front of the x position (e.g. brace, bracket)
-    system.setupSystem(this._x, this._y, this._width - this._x - 1); // Minus 1 to account for the overflow of the right bar line 
-  }
+    // Minus 1 on width to account for the overflow of the right bar line 
+    system.setupSystem(this._x, this._y, this._width - this._x - 1); 
+  };
 
   /**
    * Once all systems have dispatched events signalling that they've added their 
    * staves, the entire score is drawn.
+   * @private
    */
-  systemCreated = () => {
-    this.addSystemConnectors();
+  _systemCreated = () => {
+    this._addSystemConnectors();
     this.vf.draw();
-  }
+  };
 
-  addSystemConnectors() {
+  /**
+   * Adds connectors (barlines) to the right and left side of the systems in
+   * this score.
+   * @private
+   */
+  _addSystemConnectors() {
     const system = this.vf.systems[0]; // TODO (ywsang): Replace with better 
                                        // logic once more than one system per
                                        // score is allowed. 
@@ -233,17 +240,19 @@ export class VFScore extends HTMLElement {
 
   /** 
    * Sets the factory instance of the component that dispatched the event. 
+   * @private
    */
-  setFactory = (event) => {
+  _setFactory = (event) => {
     event.target.vf = this.vf;
-  }
+  };
 
   /** 
    * Sets the registry instance of the component that dispatched the event.
+   * @private
    */
-  setRegistry = (event) => {
+  _setRegistry = (event) => {
     event.target.registry = this.registry;
-  }
+  };
 }
 
 window.customElements.define('vf-score', VFScore);

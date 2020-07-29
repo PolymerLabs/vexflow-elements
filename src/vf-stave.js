@@ -1,19 +1,17 @@
-
-// ## Description
-// 
-// This file implements `vf-stave`, the web component that resembles 
-// the `Stave` element. One `vf-stave` can have multiple `vf-voice` children. 
-// `vf-stave` is responsible for keeping track of its children and creating 
-// the voices once they finish generating their notes. 
-// Once the voices are created, `vf-stave` dispatches an event to its parent
-// `vf-system` to signal that it's ready to be created and added to the system. 
-
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
 import VoiceReadyEvent from './events/voiceReadyEvent';
 import StaveReadyEvent from './events/staveReadyEvent';
 
+/**
+ * Implements `vf-stave`, the web component that resembles VexFlow's `Stave` 
+ * element. One `vf-stave` can have multiple `vf-voice` children. 
+ * `vf-stave` is responsible for keeping track of its children and creating 
+ * voices once the children finish generating their notes and beams. 
+ * Once the voices are created, `vf-stave` dispatches an event to its parent
+ * `vf-system` to signal that it's ready to be created and added to the system. 
+ */
 export class VFStave extends HTMLElement {
 
   /**
@@ -135,9 +133,9 @@ export class VFStave extends HTMLElement {
     // which all of the vf-voice children dispatch events before the slot change 
     // completes. 
     if (this.voices.length === this.numVoices) {
-      this.staveCreated();
+      this._staveCreated();
     }
-  }
+  };
 
   /** 
    * This is the event listener for when a vf-voice has finished creating its 
@@ -151,8 +149,8 @@ export class VFStave extends HTMLElement {
     const notes = event.target.notes;
     const beams = event.target.beams; 
 
-    this.registerNotes(notes);
-    const voice = this.createVoiceFromNotes(notes);
+    this._registerNotes(notes);
+    const voice = this._createVoiceFromNotes(notes);
 
     this.voices.push(voice);
     this.beams = this.beams.concat(beams);
@@ -160,16 +158,17 @@ export class VFStave extends HTMLElement {
     // Check to ensure that all voices have been created before telling the 
     // parent vf-system that it's ready to be created and added to the system. 
     if (this.voices.length === this.numVoices) {
-      this.staveCreated();
+      this._staveCreated();
     }
-  }
+  };
 
   /** 
    * Register notes that have non-auto-generated IDs to the score's registry 
    * 
    * @param {[Vex.Flow.StaveNote]} staveNotes - The notes to register. 
+   * @private
    */
-  registerNotes(staveNotes) {
+  _registerNotes(staveNotes) {
     staveNotes.forEach( note => {
       const id = note.attrs.id;
       // Only register the notes that have a non-auto-generated ID. 
@@ -184,16 +183,18 @@ export class VFStave extends HTMLElement {
    * 
    * @param {[Vex.Flow.StaveNote]} staveNotes - The notes to create the voice from. 
    * @return {Vex.Flow.Voice} The Voice generated from the provided notes.
+   * @private
    */
-  createVoiceFromNotes(staveNotes) {
+  _createVoiceFromNotes(staveNotes) {
     return this.score.voice(staveNotes);
   }
 
   /** 
    * Tells the parent vf-system that this vf-stave has finished creating its 
    * voices and is ready to be added to the system.  
+   * @private
    */
-  staveCreated() {
+  _staveCreated() {
     this.dispatchEvent(new StaveReadyEvent());
   }
 
@@ -202,7 +203,7 @@ export class VFStave extends HTMLElement {
    */
   setScore = (event) => {
     event.target.score = this.score;
-  }
+  };
 
 }
 

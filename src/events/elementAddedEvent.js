@@ -1,10 +1,9 @@
-// ## Description
-// 
-// This file implements `ElementAddedEvent`, the event that child elements 
-// dispatch when they've been added to the DOM in order to get the Factory 
-// instance used by all elements of the overall components. vf-score listens 
-// to this event and sets the vf property of the event target.  
-
+/**
+ * Event that child elements dispatch when they have been added to the DOM so
+ * that they can get the Factory instance to be used by all elements of the 
+ * overall component. 
+ * `vf-score` listens to this event and sets the vf property of the event target.
+ */
 export default class ElementAddedEvent extends Event {
   static eventName = 'vf-element-added';
 

@@ -1,21 +1,19 @@
  
-// ## Description
-// 
-// This file implements `vf-voice`, the web component that resembles 
-// the `Voice` element. 
-// `vf-voice` is responsible for generating and/or gathering
-// all of the notes and beams that make up the voice, including those from its
-// child components, which may be `vf-tuplet`s and `vf-beam`s. 
-// Once all the notes and beams are created, `vf-voice` dispatches an event to
-// its parent `vf-stave` to signal that it's ready for the voice to be created
-// the voice.
-
 import Vex from 'vexflow';
 
 import './vf-stave';
 import ElementAddedEvent from './events/elementAddedEvent';
 import VoiceReadyEvent from './events/voiceReadyEvent';
 
+/**
+ * Implements `vf-voice`, the web component that resembles VexFlow's `Voice` 
+ * element. 
+ * `vf-voice` is responsible for generating and/or gathering all of the notes 
+ * and beams that make up the voice, including those from its child components, 
+ * which may be `vf-tuplet`s and/or `vf-beam`s. 
+ * Once all the notes and beams are created, `vf-voice` dispatches an event to
+ * its parent `vf-stave` to signal that it's ready for the voice to be created.
+ */
 export class VFVoice extends HTMLElement {
 
   /**
@@ -85,7 +83,7 @@ export class VFVoice extends HTMLElement {
    */
   set vf(value) {
     this._vf = value;
-    this.createNotes();
+    this._createNotes();
   }
 
    /**
@@ -98,14 +96,15 @@ export class VFVoice extends HTMLElement {
    */
   set score(value) {
     this._score = value;
-    this.createNotes();
+    this._createNotes();
   }
 
   /**
    * Creates notes (and optionally, beams) from the text content of this 
    * vf-voice element.
+   * @private
    */
-  createNotes = () => {
+  _createNotes() {
     if (this._vf && this._score) {
       const notes = this._createNotesFromText(this.textContent.trim());
       // Maintaining notes in an array to set-up for future child components 

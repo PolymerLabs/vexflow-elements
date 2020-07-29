@@ -1,17 +1,17 @@
-// ## Description
-// 
-// This file implements `vf-system`, the web component that resembles 
-// the `System` element. One `vf-system` can have multiple `vf-stave` children. 
-// `vf-system` is responsible for keeping track of its children and creating 
-// the child staves once they finish generating their components. 
-// Once the child staves are added, `vf-system` dispatches an event to its
-// parent `vf-score` to signal that it's ready to be drawn. 
-
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import StaveReadyEvent from './events/staveReadyEvent';
 import SystemReadyEvent from './events/systemReadyEvent';
 
+/**
+ * Implements the`vf-system` web component, the web component that resembles 
+ * VexFlow's `System` element. 
+ * One `vf-system` can have multiple `vf-stave` children. `vf-system` is 
+ * responsible for keeping track of its children and creating the child staves 
+ * once they finish generating their components. 
+ * Once the child staves are added, `vf-system` dispatches an event to its
+ * parent `vf-score` to signal that it's ready to be drawn. 
+ */
 export class VFSystem extends HTMLElement {
 
   /**
@@ -92,7 +92,6 @@ export class VFSystem extends HTMLElement {
    * guaranteed to dispatch their events in the order that they appear in the 
    * markup, we need this order so that they can be added to the system in the 
    * correct order. 
-   * 
    * @private
    */
   _registerStaves = () => {
@@ -100,11 +99,10 @@ export class VFSystem extends HTMLElement {
     this._numStaves += staves.length;
     this.staveOrder = staves;
     this._createSystem();
-  }
+  };
 
   /**
    * Event listener for a vf-stave finished creating voices event.
-   * 
    * @private
    */
   _staveCreated = (event) => {
@@ -114,13 +112,12 @@ export class VFSystem extends HTMLElement {
 
     // Call createSystem to check whether this vf-system is ready to add its staves. 
     this._createSystem();
-  }
+  };
 
   /**
    * Checks whether the vf-system has set up its System instance and all the 
    * vf-stave children have dispatched events. If both of these conditions are 
    * true, the staves are created and added to the system.
-   *  
    * @private
    */
   _createSystem() {
