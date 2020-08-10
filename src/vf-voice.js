@@ -3,7 +3,7 @@ import Vex from 'vexflow';
 
 import './vf-stave';
 import ElementAddedEvent from './events/elementAddedEvent';
-import VoiceReadyEvent from './events/voiceReadyEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 
 /**
  * Implements `vf-voice`, the web component that resembles VexFlow's `Voice` 
@@ -114,7 +114,7 @@ export class VFVoice extends HTMLElement {
         this.beams.push(...this._autoGenerateBeams(notes));
       }
 
-      this.dispatchEvent(new VoiceReadyEvent(this.notes, this.beams));
+      this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.voiceReadyEventName));
     }
   }
 

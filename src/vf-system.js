@@ -1,7 +1,6 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
-import StaveReadyEvent from './events/staveReadyEvent';
-import SystemReadyEvent from './events/systemReadyEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 
 /**
  * Implements the`vf-system` web component, the web component that resembles 
@@ -40,7 +39,7 @@ export class VFSystem extends HTMLElement {
     // generating its voices. vf-system listens to this event so that it can add 
     // that vf-staves information to the staveToVoiceMap and update the 
     // numStaves counter. 
-    this.addEventListener(StaveReadyEvent.eventName, this._staveCreated);
+    this.addEventListener(ElementReadyEvent.staveReadyEventName, this._staveCreated);
   }
 
   connectedCallback() {
@@ -160,10 +159,7 @@ export class VFSystem extends HTMLElement {
       }
 
       // Tells parent (vf-score) that this system has finished adding its staves
-      // const systemCreatedEvent = new CustomEvent('systemCreated', { bubbles: true });
-      // this.dispatchEvent(systemCreatedEvent);
-
-      this.dispatchEvent(new SystemReadyEvent());
+      this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.systemReadyEventName));
     }
   }
 }

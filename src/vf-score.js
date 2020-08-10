@@ -1,8 +1,8 @@
 import Vex from 'vexflow';
 
 import ElementAddedEvent from './events/elementAddedEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
-import SystemReadyEvent from './events/systemReadyEvent';
 
 /**
  * Implements the `vf-score` web component, which acts as the container for
@@ -98,7 +98,7 @@ export class VFScore extends HTMLElement {
     // finished creating and adding its staves. vf-score listens to this event 
     // so that it can add that it can detect when the vf-system is ready to 
     // be drawn.
-    this.addEventListener(SystemReadyEvent.eventName, this._systemCreated);
+    this.addEventListener(ElementReadyEvent.systemReadyEventName, this._systemCreated);
 
     // The 'vf-element-added' event is dispatched by all the child elements 
     // when they are added to the DOM. vf-score listens to these events so that 

@@ -1,8 +1,7 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
-import VoiceReadyEvent from './events/voiceReadyEvent';
-import StaveReadyEvent from './events/staveReadyEvent';
 
 /**
  * Implements `vf-stave`, the web component that resembles VexFlow's `Stave` 
@@ -49,7 +48,7 @@ export class VFStave extends HTMLElement {
     // The 'vf-voice-ready' event is dispatched by a vf-voice when it has 
     // finished generating its notes. vf-stave listens to this event so that it 
     // can get that vf-voice's notes and generate a Voice from it. 
-    this.addEventListener(VoiceReadyEvent.eventName, this.addVoice);
+    this.addEventListener(ElementReadyEvent.voiceReadyEventName, this.addVoice);
 
     // The 'vf-element-ready' event is dispatched by a vf-voice when it's added 
     // to the DOM. vf-stave listens to this event so that it can set the vf-voice's
@@ -195,7 +194,7 @@ export class VFStave extends HTMLElement {
    * @private
    */
   _staveCreated() {
-    this.dispatchEvent(new StaveReadyEvent());
+    this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.staveReadyEventName));
   }
 
   /** 
