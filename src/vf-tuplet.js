@@ -1,21 +1,21 @@
-// ## Description
-// 
-// This file implements `vf-tuplet`, the web component that resembles 
-// the `Tuplet` element.
-// `vf-tuplet` is responsible for creating the tuplet, and optionally the beam,  
-// from its text content.
-// Once the tuplet is created, `vf-tuplet` dispatches an event to its parent
-// `vf-voice` to signal that it's ready for its tuplet (and beam) to be added to
-// the stave.
-
 import Vex from 'vexflow';
 
 import './vf-voice';
+
 import { createBeamForNotes, createNotesFromText } from './utils';
 import ElementAddedEvent from './events/elementAddedEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 import GetParentStemEvent from './events/getParentStemEvent';
-import TupletReadyEvent from './events/tupletReadyEvent';
 
+/**
+ * Implements `vf-tuplet`, the web component that closely resembles the `Tuplet`
+ * element.
+ * `vf-tuplet` is responsible for creating the tuplet, and optionally the beam,  
+ * from its text content.
+ * Once the tuplet is created, `vf-tuplet` dispatches an event to its parent
+ * `vf-voice` to signal that it's ready for its tuplet (and beam) to be added to
+ * the voice.
+ */
 export class VFTuplet extends HTMLElement {
 
   /**
@@ -153,7 +153,7 @@ export class VFTuplet extends HTMLElement {
      * Tell the parent vf-voice that this vf-tuplet has finished creating its
      * notes and beam and is ready to be added to the voice.
      */
-    this.dispatchEvent(new TupletReadyEvent());
+    this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.tupletReadyEventName));
   }
 }
 

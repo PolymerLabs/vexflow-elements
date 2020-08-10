@@ -1,19 +1,19 @@
-// ## Description
-// 
-// This file implements `vf-tuplet`, the web component that closely resembles 
-// the `Beam` element.
-// `vf-beam` is responsible for creating notes from its text content and the beam
-// for those notes. One beam goes across all of the notes.
-// Once the beam and notes are created, `vf-beam` dispatches an event to its parent
-// `vf-voice` to signal that it's ready for its notes and beam to be added to
-// the stave.
-
 import './vf-voice';
+
 import { createBeamForNotes, createNotesFromText } from './utils';
-import BeamReadyEvent from './events/beamReadyEvent';
 import ElementAddedEvent from './events/elementAddedEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 import GetParentStemEvent from './events/getParentStemEvent';
 
+/**
+ * Implements `vf-beam`, the web component that closely resembles the `Beam` 
+ * element.
+ * `vf-beam` is responsible for creating notes from its text content and the beam
+ * for those notes. One beam goes across all of the notes.
+ * Once the beam and notes are created, `vf-beam` dispatches an event to its parent
+ * `vf-voice` to signal that it's ready for its notes and beam to be added to
+ * the voice.
+ */
 export class VFBeam extends HTMLElement {
 
   /**
@@ -83,7 +83,7 @@ export class VFBeam extends HTMLElement {
      * Tell the parent vf-voice that this vf-beam has finished creating its 
      * notes and beam and is ready to be added to the voice.
      */
-    this.dispatchEvent(new BeamReadyEvent());
+    this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.beamReadyEventName));
   }
 }
 

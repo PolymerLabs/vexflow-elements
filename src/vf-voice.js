@@ -1,25 +1,12 @@
  
-// ## Description
-// 
-// This file implements `vf-voice`, the web component that resembles 
-// the `Voice` element. 
-// `vf-voice` is responsible for generating and/or gathering
-// all of the notes and beams that make up the voice, including those from its
-// child components, which may be `vf-tuplet`s and `vf-beam`s. 
-// Once all the notes and beams are created, `vf-voice` dispatches an event to
-// its parent `vf-stave` to signal that it's ready for the voice to be created
-// the voice.
-
 import Vex from 'vexflow';
 
 import './vf-stave';
 
 import { createNotesFromText } from './utils';
-import BeamReadyEvent from './events/beamReadyEvent';
 import ElementAddedEvent from './events/elementAddedEvent';
+import ElementReadyEvent from './events/elementReadyEvent';
 import GetParentStemEvent from './events/getParentStemEvent';
-import TupletReadyEvent from './events/tupletReadyEvent';
-import VoiceReadyEvent from './events/voiceReadyEvent';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -31,6 +18,15 @@ template.innerHTML = `
   <slot></slot>
 `;
 
+/**
+ * Implements `vf-voice`, the web component that resembles VexFlow's `Voice` 
+ * element. 
+ * `vf-voice` is responsible for generating and/or gathering all of the notes 
+ * and beams that make up the voice, including those from its child components, 
+ * which may be `vf-tuplet`s and/or `vf-beam`s. 
+ * Once all the notes and beams are created, `vf-voice` dispatches an event to
+ * its parent `vf-stave` to signal that it's ready for the voice to be created.
+ */
 export class VFVoice extends HTMLElement {
 
   /**
@@ -130,8 +126,8 @@ export class VFVoice extends HTMLElement {
     // vf-voice listens to the TupletReadyEvent and BeamReadyEvent events so 
     // it can detect when its child tuplets and beams have created their notes 
     // and establish how many tuplets and beams it expects to receive events from. 
-    this.addEventListener(TupletReadyEvent.eventName, this.tupletCreated);
-    this.addEventListener(BeamReadyEvent.eventName, this.beamCreated);
+    this.addEventListener(ElementReadyEvent.tupletReadyEventName, this.tupletCreated);
+    this.addEventListener(ElementReadyEvent.beamReadyEventName, this.beamCreated);
   }
 
   static get observedAttributes() { return ['stem', 'autoBeam'] }
@@ -234,7 +230,7 @@ export class VFVoice extends HTMLElement {
    * key and the tuplet as the value. If the vf-tuplet has a beam, the beam is
    * added to the vf-voice's beams array. 
    * 
-   * @param {TupletReadyEvent} event - The event, where event.target is a vf-tuplet.
+   * @param {ElementReadyEvent} event - The event, where event.target is a vf-tuplet.
    */
   tupletCreated = (event) => {
     const tuplet = event.target;
@@ -255,7 +251,7 @@ export class VFVoice extends HTMLElement {
    * as the key and the notes as the value. Adds the beam to the vf-voice's beam
    * array.
    * 
-   * @param {BeamReadyEvent} event - The event, where event.target is a vf-beam.
+   * @param {ElementReadyEvent} event - The event, where event.target is a vf-beam.
    */
   beamCreated = (event) => {
     const beam = event.target;
@@ -282,7 +278,7 @@ export class VFVoice extends HTMLElement {
       })
       
       // Dispatches event to vf-stave to create and add the voice to the stave
-      this.dispatchEvent(new VoiceReadyEvent());
+      this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.voiceReadyEventName));
     }
   }
 

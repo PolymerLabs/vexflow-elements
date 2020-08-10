@@ -11,7 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/PolymerLabs/vexflow-elements.git"
   },
-  "author": "",
+  "author": "The Polymer Authors",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/PolymerLabs/vexflow-elements/issues"
   },
