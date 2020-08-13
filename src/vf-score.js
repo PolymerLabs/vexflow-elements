@@ -3,6 +3,7 @@ import Vex from 'vexflow';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
 
 /**
  * Implements the `vf-score` web component, which acts as the container for
@@ -108,6 +109,10 @@ export class VFScore extends HTMLElement {
 
     // The 'vf-stave-added' event is dispatched only by the vf-stave child. 
     this.addEventListener(StaveAddedEvent.eventName, this._setRegistry);
+
+    // The 'get-prev-clef' event is dispatched by a vf-stave child in order to
+    // get the clef of the stave that proceeds it.
+    this.addEventListener(GetPrevClefEvent.eventName, this._getPrevClef);
   }
 
   connectedCallback() {
@@ -350,6 +355,35 @@ export class VFScore extends HTMLElement {
   _setRegistry = (event) => {
     event.target.registry = this.registry;
   };
+
+ /**
+  * Gets the clef of the stave at the same index in the previous system's children
+  * as the index of the stave that dispatched this event in its parent system's
+  * children.
+  * 
+  * @private
+  */
+  _getPrevClef() {
+    const stave = event.target;
+    const staveIndex = event.staveIndex;
+    const staveParentSystem = event.staveParentSystem;
+
+    const prevSystem = this._getPrevSystem(staveParentSystem);
+    stave.clef = (prevSystem) ? prevSystem.children[staveIndex].clef : 'treble';
+  }
+
+  /** Gets the system that proceeds the given @param system inside this score. 
+   * @param {VFSystem} system - The system to find the previous silbing of. 
+  */
+  _getPrevSystem(system) {
+    var prevSibling = system.previousSibling;
+    
+    while (prevSibling && prevSibling.nodeName !== `VF-SYSTEM`) {
+      prevSibling = prevSibling.previousSibling;
+    }
+
+    return prevSibling;
+  }
 }
 
 window.customElements.define('vf-score', VFScore);

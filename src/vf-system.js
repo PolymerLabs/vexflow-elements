@@ -1,6 +1,7 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
 
 /**
  * Implements the`vf-system` web component, the web component that resembles 
@@ -40,6 +41,13 @@ export class VFSystem extends HTMLElement {
     // that vf-staves information to the staveToVoiceMap and update the 
     // numStaves counter. 
     this.addEventListener(ElementReadyEvent.staveReadyEventName, this._staveCreated);
+
+    // The 'GetPrevClefEvent' event is dispatched by a vf-stave when it does not 
+    // have a clef attribute provided and needs to know the clef of the previous 
+    // stave.
+    // vf-system listens to this event so that it can determine the index of the
+    // stave in the system, and dispatch the event up to vf-score. 
+    this.addEventListener(GetPrevClefEvent.eventName, this._getPrevClef);
   }
 
   connectedCallback() {
@@ -161,6 +169,20 @@ export class VFSystem extends HTMLElement {
       // Tells parent (vf-score) that this system has finished adding its staves
       this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.systemReadyEventName));
     }
+  }
+
+  /**
+   * Gets the index of the stave inside its children.
+   * Sets the event's staveIndex and system, which are to be used by the vf-score
+   * that catches this event after.
+   * 
+   * @private
+   */
+  _getPrevClef() {
+    const stave = event.target;
+    const index = [...this.children].indexOf(stave);
+    event.staveIndex = index;
+    event.staveParentSystem = this;
   }
 }
 

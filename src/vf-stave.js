@@ -1,6 +1,7 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
 
 /**
@@ -58,7 +59,12 @@ export class VFStave extends HTMLElement {
   }
 
   connectedCallback() {
-    this.clef = this.getAttribute('clef');
+    if (!this.getAttribute('clef')) {
+      this.dispatchEvent(new GetPrevClefEvent());
+    } else { 
+      this.clef = this.getAttribute('clef');
+    }
+
     this.timeSig = this.getAttribute('timeSig');
     this.keySig = this.getAttribute('keySig');
 
