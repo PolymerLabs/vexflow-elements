@@ -5,8 +5,38 @@
   </head>
   <body>
     
+    <vf-score systemsPerLine=2 width=800>
+      <vf-system>
+        <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
+          <vf-voice stem='up'>
+            C#5/q, B4, A4/q., E4/8
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' timeSig='4/4' keySig='Bb'>
+          <vf-voice stem='down'>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system x=410 width=350>
+        <vf-stave clef='treble' x=410 width=350>
+          <vf-voice stem='up'>
+            C#5/q, B4, A4/q., E4/8
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' x=410 width=350>
+          <vf-voice stem='down'>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+    </vf-score>
+
     <!-- Basics -->
-    <vf-score x=0 height=300 renderer='canvas'>
+    <vf-score x=0 height=300>
       <vf-system>
         <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
           <vf-voice autoBeam>C5/q[id='hello'], (C4 Eb4 G4)/q, A4, G4/16, A4, B4, C5</vf-voice>
@@ -40,7 +70,7 @@
     
     <!-- Two Systems, One Line -->
     <vf-score systemsPerLine=2 width=800>
-      <vf-system connector='brace'>
+      <vf-system>
         <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
           <vf-voice stem='up'>
             C#5/q[id='here'], B4, A4/q., E4/8[id='there']

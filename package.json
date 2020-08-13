@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "es-dev-server --node-resolve --watch --open /demo/index.html",
-    "test": "test"
+    "test": "karma start --coverage"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/PolymerLabs/vexflow-elements#readme",
   "devDependencies": {
+    "@open-wc/testing": "^2.5.21",
+    "@open-wc/testing-karma": "^4.0.3",
     "es-dev-server": "^1.57.0",
     "vexflow": "^3.0.9"
   }
