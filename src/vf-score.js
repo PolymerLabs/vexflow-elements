@@ -4,6 +4,7 @@ import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
 import GetPrevClefEvent from './events/getPrevClefEvent';
+import GetPrevTimeSigEvent from './events/getPrevTimeSigEvent';
 
 /**
  * Implements the `vf-score` web component, which acts as the container for
@@ -110,9 +111,10 @@ export class VFScore extends HTMLElement {
     // The 'vf-stave-added' event is dispatched only by the vf-stave child. 
     this.addEventListener(StaveAddedEvent.eventName, this._setRegistry);
 
-    // The 'get-prev-clef' event is dispatched by a vf-stave child in order to
-    // get the clef of the stave that proceeds it.
+    // The "get previous" events are dispatched by vf-stave children to get the
+    // clef or time signature of the previous system.
     this.addEventListener(GetPrevClefEvent.eventName, this._getPrevClef);
+    this.addEventListener(GetPrevTimeSigEvent.eventName, this._getPrevTimeSig);
   }
 
   connectedCallback() {
@@ -359,17 +361,34 @@ export class VFScore extends HTMLElement {
  /**
   * Gets the clef of the stave at the same index in the previous system's children
   * as the index of the stave that dispatched this event in its parent system's
-  * children.
+  * children, and sets the clef of the stave that dispatched the event.
+  * 
+  * Defaults to treble if there is no previous system.
   * 
   * @private
   */
   _getPrevClef() {
     const stave = event.target;
     const staveIndex = event.staveIndex;
-    const staveParentSystem = event.staveParentSystem;
 
-    const prevSystem = this._getPrevSystem(staveParentSystem);
+    const prevSystem = this._getPrevSystem(stave.parentElement);
     stave.clef = (prevSystem) ? prevSystem.children[staveIndex].clef : 'treble';
+  }
+
+  /** 
+   * Gets the time signature of the system that proceeds the system of the stave
+   * that dispatched this event, and sets the time signature of the stave that
+   * dispatched the event.
+   * 
+   * Defaults to 4/4 time is there is no previous system.
+   * 
+   * @private
+   * */
+  _getPrevTimeSig = (event) => {
+    const stave = event.target;
+
+    const prevSystem = this._getPrevSystem(stave.parentElement);
+    stave.timeSig = (prevSystem) ? prevSystem.firstElementChild.timeSig : '4/4';
   }
 
   /** Gets the system that proceeds the given @param system inside this score. 

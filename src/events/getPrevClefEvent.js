@@ -13,13 +13,6 @@ export default class GetPrevClefEvent extends Event {
    */
   _staveIndex;
 
-  /**
-   * The parent system of the stave that dispatches this event.
-   * @type {VFSystem}
-   * @private
-   */
-  _staveParentSystem;
-
   constructor() {
     super(GetPrevClefEvent.eventName, { bubbles: true });
   }
@@ -37,28 +30,9 @@ export default class GetPrevClefEvent extends Event {
   }
 
   /**
-   * Setter to detect when the Factory instance is set. Once the Factory is set,
-   * vf-stave can start creating components. 
-   * 
-   * @param {Vex.Flow.Factory} value - The Factory instance that the overall 
-   *                                   component is using, set by the parent 
-   *                                   vf-score.
-   */
-  set staveParentSystem(value) {
-    this._staveParentSystem = value;
-  }
-
-  /**
    * @type {number}
   */
   get staveIndex() {
     return this._staveIndex;
-  }
-
-  /**
-   * @type {VFSystem}
-  */
-  get staveParentSystem() {
-    return this._staveParentSystem;
   }
 }

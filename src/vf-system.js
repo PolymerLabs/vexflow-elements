@@ -182,7 +182,6 @@ export class VFSystem extends HTMLElement {
     const stave = event.target;
     const index = [...this.children].indexOf(stave);
     event.staveIndex = index;
-    event.staveParentSystem = this;
   }
 }
 

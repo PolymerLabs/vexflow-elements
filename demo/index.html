@@ -119,5 +119,72 @@
       </vf-system>
     </vf-score>
 
+    <!-- Clef/TimeSig Inference -->
+    <vf-score width=800 systemsPerLine=2>
+      <vf-system>
+        <vf-stave clef='treble' timeSig='5/4' keySig='Bb'>
+          <vf-voice stem='up'>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there'], E4/q
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' timeSig='5/4' keySig='Bb'>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam stem='down'>d4/8, f3, d3, g3</vf-beam>
+            g3/q
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-curve from='here' to='there'></vf-curve>
+      
+      <vf-system>
+        <vf-stave>
+          <vf-voice stem='up'>
+            <vf-tuplet stem='up'>C5/q, B4, A4</vf-tuplet>
+            E4/q, D4, D4
+          </vf-voice>
+        </vf-stave>
+        <vf-stave>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam stem='down'>d4/8, f3, d3, g3</vf-beam>
+            g3/q
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system>
+        <vf-stave>
+          <vf-voice stem='up'>
+            C#5/q, B4, A4/q, E4, F4
+          </vf-voice>
+        </vf-stave>
+        <vf-stave>
+          <vf-voice stem='down'>
+            C3/h[stem='up'], (D4 B3)/q
+            <vf-beam stem='down'>d3, g3</vf-beam>
+            g3/q[id='start']
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system>
+        <vf-stave timeSig='4/4' keySig='Eb'>
+          <vf-voice stem='up'>
+            C#5/q, B4, A4/q., E4/8
+          </vf-voice>
+        </vf-stave>
+        <vf-stave timeSig='4/4' keySig='Eb'>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c3/8, f3, d3, g3[id='end']</vf-beam>
+            <vf-beam stem='down'>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-curve from='start' to='end'></vf-curve>
+    </vf-score>
+
   </body>
 </html>
