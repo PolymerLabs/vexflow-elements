@@ -5,6 +5,7 @@
   </head>
   <body>
     
+    <!-- Basics -->
     <vf-score x=0 height=300 renderer='canvas'>
       <vf-system>
         <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
@@ -17,6 +18,7 @@
       </vf-system>
     </vf-score>
 
+    <!-- Tuplets and Beams -->
     <vf-score height=300>
       <vf-system>
         <vf-stave clef='treble'>
@@ -28,7 +30,7 @@
         </vf-stave>
         <vf-stave clef='bass'>
           <vf-voice stem='down'>
-            <vf-beam stem='down'>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
             <vf-beam>d4/16, f3, d3, g3</vf-beam>
             g3/q
           </vf-voice>
@@ -36,5 +38,82 @@
       </vf-system>
     </vf-score>
     
+    <!-- Two Systems, One Line -->
+    <vf-score systemsPerLine=2 width=800>
+      <vf-system connector='brace'>
+        <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
+          <vf-voice stem='up'>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there']
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' timeSig='4/4' keySig='Bb'>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam stem='down'>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system x=410 width=350>
+        <vf-stave clef='treble' x=410 width=350>
+          <vf-voice stem='up'>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there']
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' x=410 width=350>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam stem='down'>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+    </vf-score>
+
+    <!-- Wrapping Systems -->
+    <vf-score systemsPerLine=2 width=700>
+      <vf-system> 
+        <!-- add back connector later! -->
+        <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
+          <vf-voice>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there']
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' timeSig='4/4' keySig='Bb'>
+          <vf-voice stem='down'>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system>
+        <vf-stave>
+          <vf-voice>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there']
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass'> 
+          <vf-voice stem='down'>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system>
+        <vf-stave>
+          <vf-voice>
+            C#5/q[id='here'], B4, A4/q., E4/8[id='there']
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass'>
+          <vf-voice stem='down'>
+            <vf-beam>c3/8, f3, d3, g3</vf-beam>
+            <vf-beam>d4/8, f3, d3, g3</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+    </vf-score>
+
   </body>
 </html>

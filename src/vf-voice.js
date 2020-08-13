@@ -264,7 +264,8 @@ export class VFVoice extends HTMLElement {
     this.elementAdded(beam);
   }
 
-  /** This function checks whether all the child nodes have been registered, and
+  /** 
+   * This function checks whether all the child nodes have been registered, and
    * if all of the expected vf-tuplet and vf-beam children have returned events. 
    * If all three of these conditions are true, the vf-voice creates its notes
    * array by getting the notes & tuplets from its elementToNotesMap in the order
