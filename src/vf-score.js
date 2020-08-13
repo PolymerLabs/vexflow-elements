@@ -199,7 +199,6 @@ export class VFScore extends HTMLElement {
    * @private
    */
   _resize(width = this._width, height = this._height) {
-    console.log(`resizing to ${width} x ${height}`);
     this._renderer.resize(width, height);
   }
 
@@ -250,7 +249,6 @@ export class VFScore extends HTMLElement {
       if (i % this._systemsPerLine === 0) { 
         x = this._startX; // Reset x position
         y += this._getSystemLineHeight(system); // Update y position
-        console.log(`updated y to ${y}`);
         lineNumber++;
       }
     }
@@ -265,7 +263,6 @@ export class VFScore extends HTMLElement {
 
     // If a height was provided as an attribute, use that height. 
     // Otherwise, default to the height needed to fit all the lines.
-    console.log(`resize to height = ${this._height ? this._height : y}`)
     this._resize(this._width, (this._height) ? this._height : y);
 
     this._createScore();
@@ -306,7 +303,7 @@ export class VFScore extends HTMLElement {
   _createScore() {
     if (this.totalNumSystems === this._systemsAdded) {
       this._addSystemConnectors();
-      // this.addCurves();
+      this._addCurves();
       this.vf.draw();
     }
   }
@@ -325,6 +322,17 @@ export class VFScore extends HTMLElement {
       systems[i].addConnector('singleRight');
       systems[i].addConnector('singleLeft');
     }
+  }
+
+  /**
+   * Adds any vf-curves to the score.
+   * @private
+   */
+  _addCurves() {
+    const curves = this.shadowRoot.querySelector('slot').assignedElements().filter(e => e.nodeName === 'VF-CURVE');
+    curves.forEach(curve => {
+      curve.addCurve();
+    })
   }
 
   /** 
