@@ -4,3 +4,4 @@ export { VFStave } from './vf-stave';
 export { VFVoice } from './vf-voice';
 export { VFTuplet } from './vf-tuplet';
 export { VFBeam } from './vf-beam';
+export { VFCurve } from './vf-curve';

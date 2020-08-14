@@ -1,7 +1,9 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
+import GetPrevTimeSigEvent from './events/getPrevTimeSigEvent';
 
 /**
  * Implements `vf-stave`, the web component that resembles VexFlow's `Stave` 
@@ -58,8 +60,18 @@ export class VFStave extends HTMLElement {
   }
 
   connectedCallback() {
-    this.clef = this.getAttribute('clef');
-    this.timeSig = this.getAttribute('timeSig');
+    if (!this.getAttribute('clef')) {
+      this.dispatchEvent(new GetPrevClefEvent());
+    } else { 
+      this.clef = this.getAttribute('clef');
+    }
+
+    if (!this.getAttribute('timeSig')) {
+      this.dispatchEvent(new GetPrevTimeSigEvent());
+    } else {
+      this.timeSig = this.getAttribute('timeSig');
+    }
+
     this.keySig = this.getAttribute('keySig');
 
     this.dispatchEvent(new StaveAddedEvent());

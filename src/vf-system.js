@@ -1,6 +1,7 @@
 import './vf-score';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
 
 /**
  * Implements the`vf-system` web component, the web component that resembles 
@@ -40,6 +41,13 @@ export class VFSystem extends HTMLElement {
     // that vf-staves information to the staveToVoiceMap and update the 
     // numStaves counter. 
     this.addEventListener(ElementReadyEvent.staveReadyEventName, this._staveCreated);
+
+    // The 'GetPrevClefEvent' event is dispatched by a vf-stave when it does not 
+    // have a clef attribute provided and needs to know the clef of the previous 
+    // stave.
+    // vf-system listens to this event so that it can determine the index of the
+    // stave in the system, and dispatch the event up to vf-score. 
+    this.addEventListener(GetPrevClefEvent.eventName, this._getPrevClef);
   }
 
   connectedCallback() {
@@ -65,15 +73,30 @@ export class VFSystem extends HTMLElement {
    * @param {int} x - The x position for the system.
    * @param {int} y - The y position for the system. 
    * @param {int} width - The width for the system. 
+   * @param {int} isFirst - Boolean representing whether or not the system is the
+   * first on the line.
    */
-  setupSystem(x, y, width) {
-    this.x = x;
+  setupSystem(x, y, width, isFirst) {
     this.y = y;
-    this.width = width;
+
+    // If the system is the first on a line, it needs to be shifted right to 
+    // make space for the connector. Otherwise, the connector would just get
+    // clipped off. 
+    // For systems that have a connector but are not first in a line, the 
+    // connector gets drawn on top of the right side of the previous system.
+    if (isFirst) {
+      const offset = this.getConnectorOffset(this.getAttribute('connector'));
+      this.x = x + offset;
+      this.width = width - offset;
+    } else {
+      this.x = x;
+      this.width = width;
+    }
+
     this.system = this._vf.System({ 
-      x: x,
-      y: y, 
-      width: width,
+      x: this.x,
+      y: this.y, 
+      width: this.width,
       factory: this._vf 
     });
 
@@ -81,6 +104,12 @@ export class VFSystem extends HTMLElement {
     // which all of the vf-stave children dispatch events before setUpSystem 
     // completes. 
     this._createSystem();
+  }
+
+  getConnectorOffset(type) {
+    if (type === 'bracket') return 5;
+    else if (type == 'brace') return 15;
+    else return 0;
   }
 
   /**
@@ -135,17 +164,11 @@ export class VFSystem extends HTMLElement {
           },
         });
 
-        if (element.hasAttribute('clef')) {
-          stave.addClef(element.clef);
-        }
+        if (element.hasAttribute('clef')) stave.addClef(element.clef);
 
-        if (element.hasAttribute('timeSig')) {
-          stave.addTimeSignature(element.timeSig);
-        }
+        if (element.hasAttribute('timeSig')) stave.addTimeSignature(element.timeSig);
         
-        if (element.hasAttribute('keySig')) {
-          stave.addKeySignature(element.keySig);
-        }
+        if (element.hasAttribute('keySig')) stave.addKeySignature(element.keySig);
 
         stave.clef = element.clef;
 
@@ -154,13 +177,26 @@ export class VFSystem extends HTMLElement {
       })
 
       // Add connectors (if specified) once all staves are added
-      if (this.hasAttribute('connected')) {
-        this.system.addConnector('brace');
+      if (this.hasAttribute('connector')) {
+        this.system.addConnector(this.getAttribute('connector'));
       }
 
       // Tells parent (vf-score) that this system has finished adding its staves
       this.dispatchEvent(new ElementReadyEvent(ElementReadyEvent.systemReadyEventName));
     }
+  }
+
+  /**
+   * Gets the index of the stave inside its children.
+   * Sets the event's staveIndex and system, which are to be used by the vf-score
+   * that catches this event after.
+   * 
+   * @private
+   */
+  _getPrevClef() {
+    const stave = event.target;
+    const index = [...this.children].indexOf(stave);
+    event.staveIndex = index;
   }
 }
 

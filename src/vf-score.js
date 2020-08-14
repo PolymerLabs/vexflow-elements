@@ -3,6 +3,8 @@ import Vex from 'vexflow';
 import ElementAddedEvent from './events/elementAddedEvent';
 import ElementReadyEvent from './events/elementReadyEvent';
 import StaveAddedEvent from './events/staveAddedEvent';
+import GetPrevClefEvent from './events/getPrevClefEvent';
+import GetPrevTimeSigEvent from './events/getPrevTimeSigEvent';
 
 /**
  * Implements the `vf-score` web component, which acts as the container for
@@ -41,13 +43,13 @@ export class VFScore extends HTMLElement {
    * The starting x position of a system within the score.
    * @private
    */
-  _x = 10;
+  _startX = 10;
 
   /**
    * The starting y position of system within the score. 
    * @private
    */
-  _y = 0;
+  _startY = 0;
 
   /**
    * The entire width of the element holding the music notation.
@@ -59,7 +61,7 @@ export class VFScore extends HTMLElement {
    * The entire height of the element holding the music notation.
    * @private
    */
-  _height = 150; 
+  _height; 
 
   /**
    * The number of systems per line.  
@@ -71,7 +73,6 @@ export class VFScore extends HTMLElement {
    * Counter that keeps track of how many systems have dispatched events 
    * signalling that they are ready to be drawn. When the number of children 
    * matches this counter, the entire score is ready to be drawn.
-   * FOR THIS PR: a vf-score can only have one vf-system. 
    * @private
    */
   _systemsAdded = 0;   
@@ -108,12 +109,19 @@ export class VFScore extends HTMLElement {
 
     // The 'vf-stave-added' event is dispatched only by the vf-stave child. 
     this.addEventListener(StaveAddedEvent.eventName, this._setRegistry);
+
+    // The "get previous" events are dispatched by vf-stave children to get the
+    // clef or time signature of the previous system.
+    this.addEventListener(GetPrevClefEvent.eventName, this._getPrevClef);
+    this.addEventListener(GetPrevTimeSigEvent.eventName, this._getPrevTimeSig);
   }
 
   connectedCallback() {
-    this._x = parseInt(this.getAttribute('x')) || this._x;
-    this._y = parseInt(this.getAttribute('y')) || this._y;
+    this._startX = parseInt(this.getAttribute('x')) || this._startX;
+    this._startY = parseInt(this.getAttribute('y')) || this._startY;
     this._rendererType = this.getAttribute('renderer') || this._rendererType;
+
+    this._systemsPerLine = parseInt(this.getAttribute('systemsPerLine')) || this._systemsPerLine;
 
     // Because connectedCallback could be called multiple times, safeguard 
     // against setting up the renderer, factory, etc. more than once. 
@@ -122,14 +130,14 @@ export class VFScore extends HTMLElement {
       this._setupFactory();
     }
 
-    // vf-score listens to the slotchange event so that it can detect its system 
-    // and set it up accordingly
-    this.shadowRoot.querySelector('slot').addEventListener('slotchange', this._registerSystem);
+    // vf-score listens to the slotchange event so that it can detect its systems 
+    // and set them up accordingly
+    this.shadowRoot.querySelector('slot').addEventListener('slotchange', this._registerSystems);
   }
 
   disconnectedCallback() {
     // TODO (ywsang): Clean up any resources that may need to be cleaned up. 
-    this.shadowRoot.querySelector('slot').removeEventListener('slotchange', this._registerSystem);
+    this.shadowRoot.querySelector('slot').removeEventListener('slotchange', this._registerSystems);
   }
 
   static get observedAttributes() { return ['x', 'y', 'width', 'height', 'renderer'] }
@@ -171,7 +179,6 @@ export class VFScore extends HTMLElement {
       this._renderer = new Vex.Flow.Renderer(element, Vex.Flow.Renderer.Backends.SVG);
     }
 
-    this._resize();
     this._context = this._renderer.getContext();
     this.registry = new Vex.Flow.Registry();
   }
@@ -197,32 +204,115 @@ export class VFScore extends HTMLElement {
    * Resizes the renderer to the score's width and height properties. 
    * @private
    */
-  _resize() {
-    this._renderer.resize(this._width, this._height);
+  _resize(width = this._width, height = this._height) {
+    this._renderer.resize(width, height);
   }
 
   /** 
-   * "Registers" the vf-system child. 
-   * This PR only supports/assumes one vf-system per vf-score. 
+   * "Registers" the vf-system children and lays them out.
    * @private
    */
-  _registerSystem = () => {
-    const system = this.shadowRoot.querySelector('slot').assignedElements()[0];
-    // TODO (ywsang): Figure out how to account for any added connectors that 
-    // get drawn in front of the x position (e.g. brace, bracket)
+  _registerSystems = () => {
+    const systems = this.shadowRoot.querySelector('slot').assignedElements().filter(e => e.nodeName === 'VF-SYSTEM');
+    this.totalNumSystems = systems.length;
+
+    const numLines = Math.ceil(this.totalNumSystems / this._systemsPerLine);
+    
     // Minus 1 on width to account for the overflow of the right bar line 
-    system.setupSystem(this._x, this._y, this._width - this._x - 1); 
+    this.systemWidth = Math.floor((this._width - this._startX - 1) / this._systemsPerLine);
+
+    var x = this._startX;
+    var y = this._startY;
+
+    var i;
+    var lineNumber = 1;
+
+    // Because the last line may not have this._systemsPerLine systems, adjust
+    // the systemWidth for the last line to have them fill up the entire line. 
+    // This boolean guards against adjusting the width for the last line 
+    // multiple times.
+    var adjustedLastLine = false;
+
+    for (i = 1; i <= this.totalNumSystems; i++) {
+      const system = systems[i-1];
+
+      // Adjust the stave width for the last line
+      if (lineNumber === numLines && !adjustedLastLine) {
+        // Added i - 1 systems so far
+        const systemsLeft = this.totalNumSystems - (i - 1);
+
+        // Minus 1 on width to account for the overflow of the right bar line 
+        this.systemWidth = Math.floor((this._width - this._startX - 1) / systemsLeft);
+        adjustedLastLine = true;
+      }
+
+      system.setupSystem(x, y, this.systemWidth, i % this._systemsPerLine === 1);    
+      
+      // Update x and y position for the next system
+      x += this.systemWidth;
+      // If this._systemsPerLine systems have been added to this line, 
+      // break to a new line.
+      if (i % this._systemsPerLine === 0) { 
+        x = this._startX; // Reset x position
+        y += this._getSystemLineHeight(system); // Update y position
+        lineNumber++;
+      }
+    }
+
+    // y only gets updated to account for the height of the last line if the 
+    // last line was filled, so we need to account for the last line's height if
+    // the last line did not have this._systemsPerLines added to it
+    if (this.totalNumSystems % this._systemsPerLine !== 0) {
+      const lastSystem = systems[this.totalNumSystems - 1];
+      y += this._getSystemLineHeight(lastSystem);
+    }
+
+    // If a height was provided as an attribute, use that height. 
+    // Otherwise, default to the height needed to fit all the lines.
+    this._resize(this._width, (this._height) ? this._height : y);
+
+    this._createScore();
   };
 
   /**
-   * Once all systems have dispatched events signalling that they've added their 
-   * staves, the entire score is drawn.
+   * Returns the height of a system, based on how many staves are in the system.
+   * 
+   * @param system The system to calculate the height of. 
+   * @return The height of the system. 
+   * @private
+   */
+  _getSystemLineHeight(system) {
+    const stavesInSystem = system.childElementCount;
+
+    // TODO (ywsang): Determine if 130 is a good constant for the height of a stave.
+    return 130 * stavesInSystem;
+  }
+
+  /**
+   * This is the event listener for when a vf-system has finished adding its 
+   * staves.
    * @private
    */
   _systemCreated = () => {
-    this._addSystemConnectors();
-    this.vf.draw();
+    this._systemsAdded++;
+
+    // Call this check at the end of the event listener to check whether all
+    // systems have returned.
+    this._createScore();
   };
+
+  /** 
+   * This function checks whether all the child systems have returned events.
+   * If so, the vf-score renders the score.
+   * @private
+   */
+  _createScore() {
+    if (this.totalNumSystems === this._systemsAdded) {
+      this._addSystemConnectors();
+      this._addCurves();
+      this.vf.draw();
+    }
+  }
 
   /**
    * Adds connectors (barlines) to the right and left side of the systems in
@@ -230,11 +320,25 @@ export class VFScore extends HTMLElement {
    * @private
    */
   _addSystemConnectors() {
-    const system = this.vf.systems[0]; // TODO (ywsang): Replace with better 
-                                       // logic once more than one system per
-                                       // score is allowed. 
-    system.addConnector('singleRight');
-    system.addConnector('singleLeft');
+    const systems = this.vf.systems;
+    const numSystems = systems.length;
+
+    var i;
+    for (i = 0; i < numSystems; i++) {
+      systems[i].addConnector('singleRight');
+      systems[i].addConnector('singleLeft');
+    }
+  }
+
+  /**
+   * Adds any vf-curves to the score.
+   * @private
+   */
+  _addCurves() {
+    const curves = this.shadowRoot.querySelector('slot').assignedElements().filter(e => e.nodeName === 'VF-CURVE');
+    curves.forEach(curve => {
+      curve.addCurve();
+    })
   }
 
   /** 
@@ -252,6 +356,52 @@ export class VFScore extends HTMLElement {
   _setRegistry = (event) => {
     event.target.registry = this.registry;
   };
+
+ /**
+  * Gets the clef of the stave at the same index in the previous system's children
+  * as the index of the stave that dispatched this event in its parent system's
+  * children, and sets the clef of the stave that dispatched the event.
+  * 
+  * Defaults to treble if there is no previous system.
+  * 
+  * @private
+  */
+  _getPrevClef() {
+    const stave = event.target;
+    const staveIndex = event.staveIndex;
+
+    const prevSystem = this._getPrevSystem(stave.parentElement);
+    stave.clef = (prevSystem) ? prevSystem.children[staveIndex].clef : 'treble';
+  }
+
+  /** 
+   * Gets the time signature of the system that proceeds the system of the stave
+   * that dispatched this event, and sets the time signature of the stave that
+   * dispatched the event.
+   * 
+   * Defaults to 4/4 time is there is no previous system.
+   * 
+   * @private
+   * */
+  _getPrevTimeSig = (event) => {
+    const stave = event.target;
+
+    const prevSystem = this._getPrevSystem(stave.parentElement);
+    stave.timeSig = (prevSystem) ? prevSystem.firstElementChild.timeSig : '4/4';
+  }
+
+  /** Gets the system that proceeds the given @param system inside this score. 
+   * @param {VFSystem} system - The system to find the previous silbing of. 
+  */
+  _getPrevSystem(system) {
+    var prevSibling = system.previousSibling;
+    
+    while (prevSibling && prevSibling.nodeName !== `VF-SYSTEM`) {
+      prevSibling = prevSibling.previousSibling;
+    }
+
+    return prevSibling;
+  }
 }
 
 window.customElements.define('vf-score', VFScore);
