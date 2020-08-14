@@ -73,15 +73,30 @@ export class VFSystem extends HTMLElement {
    * @param {int} x - The x position for the system.
    * @param {int} y - The y position for the system. 
    * @param {int} width - The width for the system. 
+   * @param {int} isFirst - Boolean representing whether or not the system is the
+   * first on the line.
    */
-  setupSystem(x, y, width) {
-    this.x = x;
+  setupSystem(x, y, width, isFirst) {
     this.y = y;
-    this.width = width;
+
+    // If the system is the first on a line, it needs to be shifted right to 
+    // make space for the connector. Otherwise, the connector would just get
+    // clipped off. 
+    // For systems that have a connector but are not first in a line, the 
+    // connector gets drawn on top of the right side of the previous system.
+    if (isFirst) {
+      const offset = this.getConnectorOffset(this.getAttribute('connector'));
+      this.x = x + offset;
+      this.width = width - offset;
+    } else {
+      this.x = x;
+      this.width = width;
+    }
+
     this.system = this._vf.System({ 
-      x: x,
-      y: y, 
-      width: width,
+      x: this.x,
+      y: this.y, 
+      width: this.width,
       factory: this._vf 
     });
 
@@ -89,6 +104,12 @@ export class VFSystem extends HTMLElement {
     // which all of the vf-stave children dispatch events before setUpSystem 
     // completes. 
     this._createSystem();
+  }
+
+  getConnectorOffset(type) {
+    if (type === 'bracket') return 5;
+    else if (type == 'brace') return 15;
+    else return 0;
   }
 
   /**
@@ -143,17 +164,11 @@ export class VFSystem extends HTMLElement {
           },
         });
 
-        if (element.hasAttribute('clef')) {
-          stave.addClef(element.clef);
-        }
+        if (element.hasAttribute('clef')) stave.addClef(element.clef);
 
-        if (element.hasAttribute('timeSig')) {
-          stave.addTimeSignature(element.timeSig);
-        }
+        if (element.hasAttribute('timeSig')) stave.addTimeSignature(element.timeSig);
         
-        if (element.hasAttribute('keySig')) {
-          stave.addKeySignature(element.keySig);
-        }
+        if (element.hasAttribute('keySig')) stave.addKeySignature(element.keySig);
 
         stave.clef = element.clef;
 
@@ -162,8 +177,8 @@ export class VFSystem extends HTMLElement {
       })
 
       // Add connectors (if specified) once all staves are added
-      if (this.hasAttribute('connected')) {
-        this.system.addConnector('brace');
+      if (this.hasAttribute('connector')) {
+        this.system.addConnector(this.getAttribute('connector'));
       }
 
       // Tells parent (vf-score) that this system has finished adding its staves

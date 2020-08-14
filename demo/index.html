@@ -5,36 +5,6 @@
   </head>
   <body>
     
-    <vf-score systemsPerLine=2 width=800>
-      <vf-system>
-        <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
-          <vf-voice stem='up'>
-            C#5/q, B4, A4/q., E4/8
-          </vf-voice>
-        </vf-stave>
-        <vf-stave clef='bass' timeSig='4/4' keySig='Bb'>
-          <vf-voice stem='down'>
-            <vf-beam>c3/8, f3, d3, g3</vf-beam>
-            <vf-beam>d4/8, f3, d3, g3</vf-beam>
-          </vf-voice>
-        </vf-stave>
-      </vf-system>
-
-      <vf-system x=410 width=350>
-        <vf-stave clef='treble' x=410 width=350>
-          <vf-voice stem='up'>
-            C#5/q, B4, A4/q., E4/8
-          </vf-voice>
-        </vf-stave>
-        <vf-stave clef='bass' x=410 width=350>
-          <vf-voice stem='down'>
-            <vf-beam>c3/8, f3, d3, g3</vf-beam>
-            <vf-beam>d4/8, f3, d3, g3</vf-beam>
-          </vf-voice>
-        </vf-stave>
-      </vf-system>
-    </vf-score>
-
     <!-- Basics -->
     <vf-score x=0 height=300>
       <vf-system>
@@ -70,7 +40,7 @@
     
     <!-- Two Systems, One Line -->
     <vf-score systemsPerLine=2 width=800>
-      <vf-system>
+      <vf-system connector='brace'>
         <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
           <vf-voice stem='up'>
             C#5/q[id='here'], B4, A4/q., E4/8[id='there']
@@ -101,8 +71,7 @@
 
     <!-- Wrapping Systems -->
     <vf-score systemsPerLine=2 width=700>
-      <vf-system> 
-        <!-- add back connector later! -->
+      <vf-system connector='bracket'>
         <vf-stave clef='treble' timeSig='4/4' keySig='Bb'>
           <vf-voice>
             C#5/q[id='here'], B4, A4/q., E4/8[id='there']
@@ -215,6 +184,48 @@
 
       <vf-curve from='start' to='end'></vf-curve>
     </vf-score>
+
+    <!-- Lines with different number of staves in a line -->
+    <vf-score renderer='svg' width=600 systemsPerLine=2>
+      <vf-system>
+        <vf-stave clef='treble' timeSig='6/8'>
+          <vf-voice>f4/4, d4/8, g4/4, eb4/8</vf-voice>
+        </vf-stave>
+      </vf-system> 
+
+      <vf-system>
+        <vf-stave>
+          <vf-voice stem='down'>ab4/4, bb4/8, (cb5 eb5)/4[stem="down"], d5/8[stem="down"]</vf-voice>
+        </vf-stave>
+      </vf-system>  
+
+      <vf-system connector='brace'>
+        <vf-stave clef='treble' timeSig='6/8'>
+          <vf-voice>
+            <vf-beam>d4/8, d4, d4</vf-beam>
+            <vf-beam>d4/8, e4, eb4</vf-beam>
+          </vf-voice>
+        </vf-stave>
+        <vf-stave clef='bass' timeSig='6/8'>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c4/8, c4, c4</vf-beam>
+            <vf-beam stem='down'>c4/8, c4, c4</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+
+      <vf-system connector='brace'>
+        <vf-stave>
+          <vf-voice>(eb4 ab4)/4., (c4 eb4 ab4)/4, db5/8</vf-voice>
+        </vf-stave>
+        <vf-stave>
+          <vf-voice stem='down'>
+            <vf-beam stem='down'>c4/8, c4, c4</vf-beam>
+            <vf-beam stem='down'>c4/8, c4, c4</vf-beam>
+          </vf-voice>
+        </vf-stave>
+      </vf-system>
+    </vf-score> 
 
   </body>
 </html>
