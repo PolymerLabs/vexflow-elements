@@ -73,7 +73,6 @@ export class VFScore extends HTMLElement {
    * Counter that keeps track of how many systems have dispatched events 
    * signalling that they are ready to be drawn. When the number of children 
    * matches this counter, the entire score is ready to be drawn.
-   * FOR THIS PR: a vf-score can only have one vf-system. 
    * @private
    */
   _systemsAdded = 0;   
