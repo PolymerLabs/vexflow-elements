@@ -115,7 +115,6 @@ export class VFScore extends HTMLElement {
     this._y = parseInt(this.getAttribute('y')) || this._y;
     this._rendererType = this.getAttribute('renderer') || this._rendererType;
 
-
     // Because connectedCallback could be called multiple times, safeguard 
     // against setting up the renderer, factory, etc. more than once. 
     if (!this._isSetup) {
